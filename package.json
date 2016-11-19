@@ -1,0 +1,22 @@
+{
+  "name": "index.js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "*",
+    "config": "^1.20.4",
+    "cors": "^2.7.1",
+    "ejs": "^2.4.2",
+    "express": "*",
+    "mongoose": "*",
+    "nodemon": "^1.2.1",
+    "request": "^2.72.0",
+    "xlsx": "^0.8.0"
+  }
+}
