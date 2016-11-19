@@ -47,66 +47,66 @@ if (!(APP_SECRET && VALIDATION_TOKEN && PAGE_ACCESS_TOKEN && SERVER_URL)) {
 }
 
 class Trie{
-	constructor(){
-		this.childNodes = {};
-		this.word       = "";
-	}
+  constructor(){
+    this.childNodes = {};
+    this.word       = "";
+  }
 
-	getChildNode(char){
-		if(!this.childNodes[char]) {
-			this.childNodes[char] = new Trie();
-		}
-			
-	return this.childNodes[char];
-		
-	}
-	getChildNodeMap(){
-		return this.childNodes;
-	}
-	setWord(word){
-		this.word   = word;	
-	}
-	getWord(){
-		return this.word;
-	}
+  getChildNode(char){
+    if(!this.childNodes[char]) {
+      this.childNodes[char] = new Trie();
+    }
+      
+  return this.childNodes[char];
+    
+  }
+  getChildNodeMap(){
+    return this.childNodes;
+  }
+  setWord(word){
+    this.word   = word; 
+  }
+  getWord(){
+    return this.word;
+  }
 
-	isWord(){
-		if(this.word != ""){
-			return true;
-		}else{
-			return false;
-		}
-	}
+  isWord(){
+    if(this.word != ""){
+      return true;
+    }else{
+      return false;
+    }
+  }
 
 }
 
 // function Trie(){
-// 	this.childNodes = {};
+//  this.childNodes = {};
 //     this.word       = "";
 // }
 
 // Trie.prototype.getChildNode = function(char){
-// 	if(this.childNodes[char] === null) {
-// 		return new Trie();
-// 	}else{
-// 	return this.childNodes[char];
-// 	}
+//  if(this.childNodes[char] === null) {
+//    return new Trie();
+//  }else{
+//  return this.childNodes[char];
+//  }
 // }
 // Trie.prototype.setWord = function(word){
-//     this.word   = word;	
+//     this.word   = word;  
 // }
 
 var trie   = new Trie();
 
  function insertWordTrie(word){
- 	var letters = word.split("");
+  var letters = word.split("");
      var curNode = trie;
      for(var j=0;j<letters.length;j++){
-     	var letter = letters[j];
-     	curNode   = curNode.getChildNode(letter);
-     	if(j==letters.length-1){
+      var letter = letters[j];
+      curNode   = curNode.getChildNode(letter);
+      if(j==letters.length-1){
          curNode.setWord(word);
-     	}
+      }
      }
  }
 
@@ -133,7 +133,7 @@ function verifyRequestSignature(req, res, buf) {
 }
 
 function insertData(object){
-	var product = object['Product'];
+  var product = object['Product'];
       var price   = object['Price'];
       var words   = product.toLowerCase().split(" ");
       var productData = {};
@@ -143,13 +143,13 @@ function insertData(object){
 
       productSchema.findOne({'name':product},function(ee,docs){
         if(docs == null){
-        	new productSchema(productData).save(function(e,result){
-		    	if(e) console.log(e);
+          new productSchema(productData).save(function(e,result){
+          if(e) console.log(e);
             });
         }
       });
       words.forEach(function(word){
-      	insertWordTrie(word.toLowerCase());
+        insertWordTrie(word.toLowerCase());
       });
 
 
@@ -157,65 +157,65 @@ function insertData(object){
 }
 
 function getSuggestions(word,results){
-	var currentrow = [];
-	for(var i=0;i<word.length+1;i++){
+  var currentrow = [];
+  for(var i=0;i<word.length+1;i++){
      currentrow[i] = i;
-	}
-	for(var letter in trie.getChildNodeMap()){
+  }
+  for(var letter in trie.getChildNodeMap()){
 
-		searchRecursive(trie.getChildNode(letter),letter,word,currentrow,results);
-	}
-	
+    searchRecursive(trie.getChildNode(letter),letter,word,currentrow,results);
+  }
+  
 }
 
 function searchRecursive(node,letter,word,previousrow,results){
-	var currentrow = [];
-	for(var i=0;i<word.length+1;i++){
+  var currentrow = [];
+  for(var i=0;i<word.length+1;i++){
      currentrow[i] = 0;
-	}
-	var columns    = word.length+1;
-	currentrow[0]  = previousrow[0]+1;
+  }
+  var columns    = word.length+1;
+  currentrow[0]  = previousrow[0]+1;
 
-	for(var i=1;i<columns;i++){
-		var cost1  = currentrow[i-1];
-		var cost2  = previousrow[i];
-		var cost3  = previousrow[i-1];
-		var cost   = 0;
-		if(word.charAt(i-1) != letter){
-			cost = 1;
-		}
+  for(var i=1;i<columns;i++){
+    var cost1  = currentrow[i-1];
+    var cost2  = previousrow[i];
+    var cost3  = previousrow[i-1];
+    var cost   = 0;
+    if(word.charAt(i-1) != letter){
+      cost = 1;
+    }
         //console.log(cost1 +"-->"+cost2+"-->"+cost3);
-		currentrow[i] = Math.min(cost1,Math.min(cost2,cost3))+cost;
-		//console.log(currentrow);
-	}
+    currentrow[i] = Math.min(cost1,Math.min(cost2,cost3))+cost;
+    //console.log(currentrow);
+  }
 
     if(currentrow[columns - 1]<=2 & node.isWord()){
-    	if(node.getWord() == 'paneer'){
-    		console.log(">>>"+currentrow[columns-1]);
-    	}
-    	if(arrayObjectIndexOf(results,node.getWord()) === -1){
-			var obj            = {};
-			obj['word']        = node.getWord();
-			var denom          = ((Math.abs(node.getWord().length-word.length)+1)*currentrow[columns-1])+1; 
-			var probability    = 1/denom;
-			obj['probability'] = probability;
-			results.push(obj);
-		}else{
-			var denom          = ((Math.abs(node.getWord().length-word.length)+1)*currentrow[columns-1])+1; 
-			var probability    = 1/denom;
-			var index          = arrayObjectIndexOf(results,node.getWord(),'word');
-			var obj            = results[index];
-			if(obj['probability']<probability){
-				obj['probability'] = probability;
-			}
-			results[index] = obj;
-		}
-	}
+      if(node.getWord() == 'paneer'){
+        console.log(">>>"+currentrow[columns-1]);
+      }
+      if(arrayObjectIndexOf(results,node.getWord()) === -1){
+      var obj            = {};
+      obj['word']        = node.getWord();
+      var denom          = ((Math.abs(node.getWord().length-word.length)+1)*currentrow[columns-1])+1; 
+      var probability    = 1/denom;
+      obj['probability'] = probability;
+      results.push(obj);
+    }else{
+      var denom          = ((Math.abs(node.getWord().length-word.length)+1)*currentrow[columns-1])+1; 
+      var probability    = 1/denom;
+      var index          = arrayObjectIndexOf(results,node.getWord(),'word');
+      var obj            = results[index];
+      if(obj['probability']<probability){
+        obj['probability'] = probability;
+      }
+      results[index] = obj;
+    }
+  }
 
-	if(getMinOfArray(currentrow)<=2){
+  if(getMinOfArray(currentrow)<=2){
             for(var letter1 in node.getChildNodeMap()){
-		searchRecursive(node.getChildNode(letter1),letter1,word,currentrow,results);
-	       	}
+    searchRecursive(node.getChildNode(letter1),letter1,word,currentrow,results);
+          }
         }
 }
 
@@ -225,7 +225,7 @@ function getMinOfArray(numArray) {
 
 function arrayObjectIndexOf(myArray, searchTerm) {
     for(var i = 0, len = myArray.length; i < len; i++) {
-    	if (myArray[i]['word'] === searchTerm) return i;
+      if (myArray[i]['word'] === searchTerm) return i;
     }
     return -1;
 }
@@ -236,11 +236,11 @@ function arrayObjectIndexOf(myArray, searchTerm) {
 
 
 function readExcel(){
-	var workbook  = XLSX.readFile('product_list.xlsx');
+  var workbook  = XLSX.readFile('product_list.xlsx');
     var sheet_name_list = workbook.SheetNames;
     var json = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
     json.forEach(function(object){
-    	insertData(object);
+      insertData(object);
     });
     var results = [];
     
@@ -287,26 +287,26 @@ function receivedMessage(event) {
   productSchema.find({'words':{$in:suggestionlist}},function(error,docs){
       docs.forEach(function(singledoc){
       var words = singledoc.words;
-      var totalScore = 1;
+      var totalScore = 0;
       var count   = 0;
       words.forEach(function(word){
-      	if(suggestionlist.indexOf(word) != -1){
-      		count++;
-      		var index           = arrayObjectIndexOf(results,word);
-      	    var wordProbability = results[index]['probability'];
-      		totalScore          += wordProbability;
-      	}
+        if(suggestionlist.indexOf(word) != -1){
+          count++;
+          var index           = arrayObjectIndexOf(results,word);
+            var wordProbability = results[index]['probability'];
+          totalScore          += wordProbability;
+        }
       });
       var probability = (count*totalScore) / words.length;
       if(probability >= PROBABILITY_THRESHOLD){
-      	var obj = {};
-      	obj.probability = probability;
-      	obj.product     = singledoc.name;
-      	productList.push(obj);
+        var obj = {};
+        obj.probability = probability;
+        obj.product     = singledoc.name;
+        productList.push(obj);
       }
       });
       productList.sort(function(a,b){
-      	return (parseFloat(b.probability).toFixed(4) - parseFloat(a.probability).toFixed(4));
+        return (parseFloat(b.probability).toFixed(4) - parseFloat(a.probability).toFixed(4));
       });
        console.log(productList);
       var finalIndex = productList.length;
@@ -338,14 +338,14 @@ function sendTextMessage(recipientId, messageText) {
 }
 
 function sendButtonMessage(recipientId,productList) {
-	var array = [];
-	productList.forEach(function(product){
+  var array = [];
+  productList.forEach(function(product){
       var obj  = {};
       obj.type    = "postback";
       obj.title   = product.product;
       obj.payload = product.product;
       array.push(obj);
-	});
+  });
   var messageData = {
     recipient: {
       id: recipientId
@@ -394,7 +394,7 @@ res.status(200).send(req.query['hub.challenge']);
 });
 
 app.get('/webhook', function(req, res) {
-	console.log('recieved');
+  console.log('recieved');
   if (req.query['hub.mode'] === 'subscribe' &&
       req.query['hub.verify_token'] === VALIDATION_TOKEN) {
     console.log("Validating webhook");
@@ -419,7 +419,7 @@ app.post('/webhook', function (req, res) {
         if(messagingEvent.message){
             receivedMessage(messagingEvent);
         }else if(messagingEvent.postback){
-        	recievedPostback(messagingEvent);
+          recievedPostback(messagingEvent);
         }
       });
     });
