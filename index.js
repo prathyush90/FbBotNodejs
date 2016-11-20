@@ -315,7 +315,7 @@ function receivedMessage(event) {
       }
       var buttonData = productList.splice(0,finalIndex);
       if(buttonData.length == 0){
-          sendTextMessage(senderID,"No results found for your query");
+          sendTextMessage(senderID,"Hey there sorry.No results found for your query,Please try search queries like milk,atta e.t.c.Spelling mistake are fine");
       }else{
        sendButtonMessage(senderID,buttonData);
      }
@@ -409,6 +409,7 @@ app.get('/webhook', function(req, res) {
 
 app.post('/webhook', function (req, res) {
   var data = req.body;
+  console.log("entered");
 
   if (data.object == 'page') {
     data.entry.forEach(function(pageEntry) {
